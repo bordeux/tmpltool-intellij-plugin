@@ -1,0 +1,48 @@
+{
+  "branches": ["master", "main"],
+  "tagFormat": "v${version}",
+  "plugins": [
+    ["@semantic-release/commit-analyzer", {
+      "preset": "conventionalcommits",
+      "releaseRules": [
+        {"type": "feat", "release": "minor"},
+        {"type": "fix", "release": "patch"},
+        {"type": "perf", "release": "patch"},
+        {"type": "refactor", "release": "patch"},
+        {"type": "docs", "release": "patch"},
+        {"type": "style", "release": false},
+        {"type": "test", "release": false},
+        {"type": "chore", "release": false},
+        {"type": "ci", "release": false},
+        {"breaking": true, "release": "major"}
+      ]
+    }],
+    ["@semantic-release/release-notes-generator", {
+      "preset": "conventionalcommits",
+      "presetConfig": {
+        "types": [
+          {"type": "feat", "section": "Features"},
+          {"type": "fix", "section": "Bug Fixes"},
+          {"type": "perf", "section": "Performance"},
+          {"type": "refactor", "section": "Refactoring"},
+          {"type": "docs", "section": "Documentation"},
+          {"type": "style", "section": "Styles", "hidden": true},
+          {"type": "test", "section": "Tests", "hidden": true},
+          {"type": "chore", "section": "Maintenance", "hidden": true},
+          {"type": "ci", "section": "CI/CD", "hidden": true}
+        ]
+      }
+    }],
+    ["@semantic-release/changelog", {
+      "changelogFile": "CHANGELOG.md",
+      "changelogTitle": "# Changelog\n\nAll notable changes to this project will be documented in this file."
+    }],
+    ["@semantic-release/exec", {
+      "prepareCmd": "sed -i 's/version = \".*\"/version = \"${nextRelease.version}\"/' build.gradle.kts"
+    }],
+    ["@semantic-release/git", {
+      "assets": ["CHANGELOG.md", "build.gradle.kts"],
+      "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+    }]
+  ]
+}

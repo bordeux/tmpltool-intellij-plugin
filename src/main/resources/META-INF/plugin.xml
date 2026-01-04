@@ -1,0 +1,138 @@
+<idea-plugin>
+    <id>com.bordeux.tmpltool</id>
+    <name>Tmpltool Template Support</name>
+    <vendor email="tmpltool@bordeux.net" url="https://github.com/bordeux/tmpltool">Chris Bednarczyk</vendor>
+
+    <description><![CDATA[
+        Syntax highlighting and language support for <b>tmpltool</b> template files (.tmpltool).
+        <br/><br/>
+
+        <b>Features:</b>
+        <ul>
+            <li>Syntax highlighting for Jinja2-like template syntax</li>
+            <li>Base language detection from double extensions (e.g., .yaml.tmpl → YAML + templates)</li>
+            <li>Code completion for 50+ built-in functions</li>
+            <li>Documentation popups on hover</li>
+            <li>15+ live templates (type <code>if</code>, <code>for</code>, <code>env</code>, etc. + Tab)</li>
+            <li>Error highlighting for unclosed tags</li>
+            <li>Navigate to included templates (Ctrl+Click)</li>
+            <li>Support for expression tags: <code>{{ }}</code></li>
+            <li>Support for statement tags: <code>{% %}</code></li>
+            <li>Support for comment tags: <code>{# #}</code></li>
+            <li>Customizable color scheme</li>
+        </ul>
+
+        <b>Supported file patterns:</b>
+        <ul>
+            <li><code>*.yaml.tmpltool</code>, <code>*.yml.tmpltool</code> - YAML templates</li>
+            <li><code>*.json.tmpltool</code> - JSON templates</li>
+            <li><code>*.xml.tmpltool</code> - XML templates</li>
+            <li><code>*.html.tmpltool</code> - HTML templates</li>
+            <li><code>*.sh.tmpltool</code> - Shell script templates</li>
+            <li><code>*.tmpltool</code> - Plain text templates</li>
+            <li>And many more...</li>
+        </ul>
+
+        <b>Links:</b>
+        <ul>
+            <li><a href="https://github.com/bordeux/tmpltool">tmpltool on GitHub</a></li>
+            <li><a href="https://github.com/bordeux/tmpltool-intellij-plugin">Plugin source code</a></li>
+        </ul>
+    ]]></description>
+
+    <!-- Supports all IntelliJ-based IDEs -->
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Settings -->
+        <applicationService
+                serviceImplementation="com.bordeux.tmpltool.settings.TmplSettings"/>
+        <applicationConfigurable
+                parentId="tools"
+                instance="com.bordeux.tmpltool.settings.TmplSettingsConfigurable"
+                id="com.bordeux.tmpltool.settings"
+                displayName="Tmpltool"/>
+
+        <!-- File Type -->
+        <fileType
+                name="Tmpltool Template"
+                implementationClass="com.bordeux.tmpltool.TmplFileType"
+                fieldName="INSTANCE"
+                language="Tmpltool"
+                extensions="tmpltool"/>
+
+        <!-- Syntax Highlighter -->
+        <lang.syntaxHighlighterFactory
+                language="Tmpltool"
+                implementationClass="com.bordeux.tmpltool.highlighter.TmplSyntaxHighlighterFactory"/>
+
+        <!-- Color Settings Page -->
+        <colorSettingsPage
+                implementation="com.bordeux.tmpltool.highlighter.TmplColorSettingsPage"/>
+
+        <!-- Bracket matching -->
+        <lang.braceMatcher
+                language="Tmpltool"
+                implementationClass="com.bordeux.tmpltool.TmplBraceMatcher"/>
+
+        <!-- Commenter -->
+        <lang.commenter
+                language="Tmpltool"
+                implementationClass="com.bordeux.tmpltool.TmplCommenter"/>
+
+        <!-- Parser (minimal, for PSI structure) -->
+        <lang.parserDefinition
+                language="Tmpltool"
+                implementationClass="com.bordeux.tmpltool.parser.TmplParserDefinition"/>
+
+        <!-- AST Factory for creating OuterLanguageElement (same pattern as Handlebars plugin) -->
+        <lang.ast.factory
+                language="Tmpltool"
+                implementationClass="com.bordeux.tmpltool.parser.TmplASTFactory"/>
+
+        <!-- File View Provider for template data language support -->
+        <lang.fileViewProviderFactory
+                language="Tmpltool"
+                implementationClass="com.bordeux.tmpltool.TmplFileViewProviderFactory"/>
+
+        <!-- Editor Highlighter for layered highlighting (template + base language) -->
+        <editorHighlighterProvider
+                filetype="Tmpltool Template"
+                implementationClass="com.bordeux.tmpltool.highlighter.TmplTemplateHighlighterProvider"/>
+
+        <!-- Code Completion -->
+        <completion.contributor
+                language="Tmpltool"
+                implementationClass="com.bordeux.tmpltool.completion.TmplCompletionContributor"/>
+
+        <!-- Documentation Provider (hover docs) -->
+        <lang.documentationProvider
+                language="Tmpltool"
+                implementationClass="com.bordeux.tmpltool.completion.TmplDocumentationProvider"/>
+
+        <!-- Parameter Info (Ctrl+P to show function parameters) -->
+        <codeInsight.parameterInfo
+                language="Tmpltool"
+                implementationClass="com.bordeux.tmpltool.completion.TmplParameterInfoHandler"/>
+
+        <!-- Auto-popup parameter info when typing ( -->
+        <typedHandler
+                implementation="com.bordeux.tmpltool.completion.TmplTypedHandler"/>
+
+        <!-- Live Templates -->
+        <defaultLiveTemplates file="/liveTemplates/Tmpltool.xml"/>
+        <liveTemplateContext
+                contextId="TMPLTOOL"
+                implementation="com.bordeux.tmpltool.TmplTemplateContextType"/>
+
+        <!-- Error Highlighting (Annotator) -->
+        <annotator
+                language="Tmpltool"
+                implementationClass="com.bordeux.tmpltool.annotator.TmplAnnotator"/>
+
+        <!-- Reference Contributor (for navigation) -->
+        <psi.referenceContributor
+                language="Tmpltool"
+                implementation="com.bordeux.tmpltool.reference.TmplReferenceContributor"/>
+    </extensions>
+</idea-plugin>

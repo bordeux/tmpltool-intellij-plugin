@@ -1,0 +1,26 @@
+{# Docker Compose template for tmpltool #}
+version: "3.8"
+
+services:
+  web:
+    image: nginx:{{ get_env(name="NGINX_VERSION", default="latest") }}
+    ports:
+      - "{{ get_env(name="PORT", default="80") }}:80"
+    environment:
+      - API_KEY={{ hash_sha256(value="test") }}
+      - DEBUG={{ get_env(name="DEBUG", default="false") }}
+
+{% if is_production %}
+  database:
+    image: postgres:15
+    environment:
+      POSTGRES_PASSWORD: {{ random_string(lenght=42) }}
+{% endif %}
+
+{% for service in services %}
+  {{ service.name }}:
+    image: {{ service.image }}
+    ports:
+      - "{{ service.port }}:{{ service.port }}"
+{% endfor %}
+

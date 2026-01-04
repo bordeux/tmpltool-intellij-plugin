@@ -1,0 +1,14 @@
+{# Simple greeting template #}
+Hello, {{ get_env(name="NAME", default="World") }}!
+
+Today is {{ now(format="%Y-%m-%d") }}.
+Your unique ID: {{ uuid_v4() }}
+
+{% if get_env(name="SHOW_HASH", default="") %}
+MD5 Hash: {{ hash_md5(value="example") }}
+SHA256 Hash: {{ hash_sha256(value="example") }}
+{% endif %}
+
+{% for i in range(3) %}
+  Item {{ i }}: {{ random_string(length=8) }}
+{% endfor %}

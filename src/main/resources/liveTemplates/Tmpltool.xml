@@ -1,0 +1,205 @@
+<templateSet group="Tmpltool">
+    <!-- Expression Templates -->
+    <template name="var"
+              value="{{ $VAR$ }}"
+              description="Variable expression"
+              toReformat="false"
+              toShortenFQNames="false">
+        <variable name="VAR" expression="" defaultValue="&quot;variable&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="TMPLTOOL" value="true"/>
+        </context>
+    </template>
+
+    <template name="env"
+              value="{{ get_env(name=&quot;$NAME$&quot;, default=&quot;$DEFAULT$&quot;) }}"
+              description="Get environment variable"
+              toReformat="false"
+              toShortenFQNames="false">
+        <variable name="NAME" expression="" defaultValue="&quot;VAR_NAME&quot;" alwaysStopAt="true"/>
+        <variable name="DEFAULT" expression="" defaultValue="&quot;&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="TMPLTOOL" value="true"/>
+        </context>
+    </template>
+
+    <template name="hash"
+              value="{{ hash_sha256(value=&quot;$VALUE$&quot;) }}"
+              description="SHA256 hash"
+              toReformat="false"
+              toShortenFQNames="false">
+        <variable name="VALUE" expression="" defaultValue="&quot;value&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="TMPLTOOL" value="true"/>
+        </context>
+    </template>
+
+    <template name="uuid"
+              value="{{ uuid_v4() }}"
+              description="Generate UUID v4"
+              toReformat="false"
+              toShortenFQNames="false">
+        <context>
+            <option name="TMPLTOOL" value="true"/>
+        </context>
+    </template>
+
+    <template name="now"
+              value="{{ now(format=&quot;$FORMAT$&quot;) }}"
+              description="Current date/time"
+              toReformat="false"
+              toShortenFQNames="false">
+        <variable name="FORMAT" expression="" defaultValue="&quot;%Y-%m-%d %H:%M:%S&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="TMPLTOOL" value="true"/>
+        </context>
+    </template>
+
+    <template name="rand"
+              value="{{ random_string(length=$LENGTH$) }}"
+              description="Random string"
+              toReformat="false"
+              toShortenFQNames="false">
+        <variable name="LENGTH" expression="" defaultValue="&quot;32&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="TMPLTOOL" value="true"/>
+        </context>
+    </template>
+
+    <!-- Control Flow Templates -->
+    <template name="if"
+              value="{% if $CONDITION$ %}&#10;$CONTENT$&#10;{% endif %}"
+              description="If block"
+              toReformat="false"
+              toShortenFQNames="false">
+        <variable name="CONDITION" expression="" defaultValue="&quot;condition&quot;" alwaysStopAt="true"/>
+        <variable name="CONTENT" expression="" defaultValue="&quot;&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="TMPLTOOL" value="true"/>
+        </context>
+    </template>
+
+    <template name="ife"
+              value="{% if $CONDITION$ %}&#10;$THEN$&#10;{% else %}&#10;$ELSE$&#10;{% endif %}"
+              description="If-else block"
+              toReformat="false"
+              toShortenFQNames="false">
+        <variable name="CONDITION" expression="" defaultValue="&quot;condition&quot;" alwaysStopAt="true"/>
+        <variable name="THEN" expression="" defaultValue="&quot;&quot;" alwaysStopAt="true"/>
+        <variable name="ELSE" expression="" defaultValue="&quot;&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="TMPLTOOL" value="true"/>
+        </context>
+    </template>
+
+    <template name="for"
+              value="{% for $ITEM$ in $ITEMS$ %}&#10;{{ $ITEM$ }}&#10;{% endfor %}"
+              description="For loop"
+              toReformat="false"
+              toShortenFQNames="false">
+        <variable name="ITEM" expression="" defaultValue="&quot;item&quot;" alwaysStopAt="true"/>
+        <variable name="ITEMS" expression="" defaultValue="&quot;items&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="TMPLTOOL" value="true"/>
+        </context>
+    </template>
+
+    <template name="set"
+              value="{% set $NAME$ = $VALUE$ %}"
+              description="Set variable"
+              toReformat="false"
+              toShortenFQNames="false">
+        <variable name="NAME" expression="" defaultValue="&quot;variable&quot;" alwaysStopAt="true"/>
+        <variable name="VALUE" expression="" defaultValue="&quot;value&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="TMPLTOOL" value="true"/>
+        </context>
+    </template>
+
+    <template name="inc"
+              value="{% include &quot;$FILE$&quot; %}"
+              description="Include template"
+              toReformat="false"
+              toShortenFQNames="false">
+        <variable name="FILE" expression="" defaultValue="&quot;partial.tmpltool&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="TMPLTOOL" value="true"/>
+        </context>
+    </template>
+
+    <template name="com"
+              value="{# $COMMENT$ #}"
+              description="Comment"
+              toReformat="false"
+              toShortenFQNames="false">
+        <variable name="COMMENT" expression="" defaultValue="&quot;comment&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="TMPLTOOL" value="true"/>
+        </context>
+    </template>
+
+    <!-- Validation Templates -->
+    <template name="ifenv"
+              value="{% if get_env(name=&quot;$NAME$&quot;, default=&quot;&quot;) %}&#10;$CONTENT$&#10;{% endif %}"
+              description="If environment variable is set"
+              toReformat="false"
+              toShortenFQNames="false">
+        <variable name="NAME" expression="" defaultValue="&quot;VAR_NAME&quot;" alwaysStopAt="true"/>
+        <variable name="CONTENT" expression="" defaultValue="&quot;&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="TMPLTOOL" value="true"/>
+        </context>
+    </template>
+
+    <template name="iffile"
+              value="{% if is_file(path=&quot;$PATH$&quot;) %}&#10;$CONTENT$&#10;{% endif %}"
+              description="If file exists"
+              toReformat="false"
+              toShortenFQNames="false">
+        <variable name="PATH" expression="" defaultValue="&quot;file.txt&quot;" alwaysStopAt="true"/>
+        <variable name="CONTENT" expression="" defaultValue="&quot;&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="TMPLTOOL" value="true"/>
+        </context>
+    </template>
+
+    <!-- Data Parsing Templates -->
+    <template name="json"
+              value="{% set $NAME$ = parse_json(value=read_file(path=&quot;$PATH$&quot;)) %}&#10;{{ $NAME$.$FIELD$ }}"
+              description="Parse JSON file"
+              toReformat="false"
+              toShortenFQNames="false">
+        <variable name="NAME" expression="" defaultValue="&quot;data&quot;" alwaysStopAt="true"/>
+        <variable name="PATH" expression="" defaultValue="&quot;data.json&quot;" alwaysStopAt="true"/>
+        <variable name="FIELD" expression="" defaultValue="&quot;field&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="TMPLTOOL" value="true"/>
+        </context>
+    </template>
+
+    <template name="yaml"
+              value="{% set $NAME$ = parse_yaml(value=read_file(path=&quot;$PATH$&quot;)) %}&#10;{{ $NAME$.$FIELD$ }}"
+              description="Parse YAML file"
+              toReformat="false"
+              toShortenFQNames="false">
+        <variable name="NAME" expression="" defaultValue="&quot;data&quot;" alwaysStopAt="true"/>
+        <variable name="PATH" expression="" defaultValue="&quot;data.yaml&quot;" alwaysStopAt="true"/>
+        <variable name="FIELD" expression="" defaultValue="&quot;field&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="TMPLTOOL" value="true"/>
+        </context>
+    </template>
+
+    <!-- Filter Templates -->
+    <template name="pipe"
+              value="{{ $VALUE$ | $FILTER$ }}"
+              description="Value with filter"
+              toReformat="false"
+              toShortenFQNames="false">
+        <variable name="VALUE" expression="" defaultValue="&quot;value&quot;" alwaysStopAt="true"/>
+        <variable name="FILTER" expression="" defaultValue="&quot;upper&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="TMPLTOOL" value="true"/>
+        </context>
+    </template>
+</templateSet>

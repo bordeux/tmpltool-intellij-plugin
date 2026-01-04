@@ -1,0 +1,17 @@
+{# JSON configuration template #}
+{
+  "app": {
+    "name": "{{ get_env(name="APP_NAME", default="MyApp") }}",
+    "version": "1.0.0",
+    "debug": {{ get_env(name="DEBUG", default="false") }}
+  },
+  "database": {
+    "host": "{{ get_env(name="DB_HOST", default="localhost") }}",
+    "port": {{ get_env(name="DB_PORT", default="5432") }},
+    "name": "{{ get_env(name="DB_NAME", default="app_db") }}"
+  },
+  "security": {
+    "api_key": "{{ hash_sha256(value=get_env(name="SECRET", default="default-secret")) }}",
+    "session_id": "{{ uuid_v4() }}"
+  }
+}
