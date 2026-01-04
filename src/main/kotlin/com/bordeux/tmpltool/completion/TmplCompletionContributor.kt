@@ -45,11 +45,23 @@ class TmplFunctionCompletionProvider : CompletionProvider<CompletionParameters>(
         // Check if we're inside a function call (inside parentheses)
         val document = parameters.editor.document
         val offset = parameters.offset
-        val functionContext = findFunctionContext(document.text, offset)
+        val text = document.text
+        val functionContext = findFunctionContext(text, offset)
 
         if (functionContext != null) {
             // We're inside a function call - show parameter name completions instead
-            addParameterNameCompletions(functionContext, result)
+            // Check if this is a filter call (after pipe) - skip first param if so
+            val isFilterCall = isFilterCall(text, offset)
+            addParameterNameCompletions(functionContext, result, skipFirstParam = isFilterCall)
+            return
+        }
+
+        // Check if we're after a pipe (filter context)
+        val isAfterPipe = isAfterPipe(text, offset)
+
+        if (isAfterPipe) {
+            // Show only filters
+            addFilterCompletions(result)
             return
         }
 
@@ -172,6 +184,101 @@ class TmplFunctionCompletionProvider : CompletionProvider<CompletionParameters>(
     }
 
     /**
+     * Check if cursor is after a pipe character (filter context).
+     */
+    private fun isAfterPipe(text: String, offset: Int): Boolean {
+        var i = offset - 1
+
+        // Skip any partial identifier being typed
+        while (i >= 0 && (text[i].isLetterOrDigit() || text[i] == '_')) {
+            i--
+        }
+
+        // Skip whitespace
+        while (i >= 0 && text[i].isWhitespace()) {
+            i--
+        }
+
+        // Check if we hit a pipe
+        return i >= 0 && text[i] == '|'
+    }
+
+    /**
+     * Check if we're inside a filter call (function call that follows a pipe).
+     * E.g., {{ "test" | truncate( }} - we're in a filter call
+     */
+    private fun isFilterCall(text: String, offset: Int): Boolean {
+        // Find the opening paren first
+        var parenDepth = 0
+        var i = offset - 1
+
+        while (i >= 0) {
+            when (text[i]) {
+                ')' -> parenDepth++
+                '(' -> {
+                    if (parenDepth == 0) {
+                        // Found opening paren, now check if there's a pipe before the function name
+                        return hasPipeBeforeFunction(text, i)
+                    }
+                    parenDepth--
+                }
+                '{' -> {
+                    if (i > 0 && (text[i - 1] == '{' || text[i - 1] == '%')) {
+                        return false
+                    }
+                }
+            }
+            i--
+        }
+        return false
+    }
+
+    /**
+     * Check if there's a pipe before the function name at the given paren position.
+     */
+    private fun hasPipeBeforeFunction(text: String, parenIndex: Int): Boolean {
+        var i = parenIndex - 1
+
+        // Skip function name
+        while (i >= 0 && text[i].isWhitespace()) i--
+        while (i >= 0 && (text[i].isLetterOrDigit() || text[i] == '_')) i--
+
+        // Skip whitespace
+        while (i >= 0 && text[i].isWhitespace()) i--
+
+        // Check for pipe
+        return i >= 0 && text[i] == '|'
+    }
+
+    /**
+     * Add filter completions (only items where isFilter=true).
+     */
+    private fun addFilterCompletions(result: CompletionResultSet) {
+        for (func in TmplFunctionRegistry.functions) {
+            if (!func.isFilter) continue
+
+            val lookupElement = LookupElementBuilder.create(func.name)
+                .withIcon(AllIcons.Nodes.Function)
+                .withTypeText("filter", true)
+                .withTailText(if (func.params.isNotEmpty()) buildParamsTail(func) else "", true)
+                .withInsertHandler { ctx, _ ->
+                    // If filter has required params, insert parentheses
+                    val hasRequiredParams = func.params.any { it.required }
+                    if (hasRequiredParams) {
+                        val editor = ctx.editor
+                        val document = editor.document
+                        val tailOffset = ctx.tailOffset
+                        document.insertString(tailOffset, "()")
+                        editor.caretModel.moveToOffset(tailOffset + 1)
+                    }
+                }
+                .withBoldness(true)
+
+            result.addElement(PrioritizedLookupElement.withPriority(lookupElement, 100.0))
+        }
+    }
+
+    /**
      * Find if we're inside a function call and return the function name.
      * Returns null if not inside a function call.
      */
@@ -244,9 +351,11 @@ class TmplFunctionCompletionProvider : CompletionProvider<CompletionParameters>(
 
     /**
      * Add parameter name completions for the given function.
+     * @param skipFirstParam If true, skip the first parameter (used for filters where first arg is the piped value)
      */
-    private fun addParameterNameCompletions(func: TmplFunctionRegistry.TmplFunction, result: CompletionResultSet) {
-        for (param in func.params) {
+    private fun addParameterNameCompletions(func: TmplFunctionRegistry.TmplFunction, result: CompletionResultSet, skipFirstParam: Boolean = false) {
+        val params = if (skipFirstParam && func.params.isNotEmpty()) func.params.drop(1) else func.params
+        for (param in params) {
             val lookupElement = LookupElementBuilder.create("${param.name}=")
                 .withIcon(AllIcons.Nodes.Parameter)
                 .withTypeText(param.type, true)

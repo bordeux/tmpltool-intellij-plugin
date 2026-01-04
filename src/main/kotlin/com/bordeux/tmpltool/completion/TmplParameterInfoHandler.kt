@@ -1,14 +1,13 @@
 package com.bordeux.tmpltool.completion
 
 import com.bordeux.tmpltool.TmplLanguage
-import com.bordeux.tmpltool.completion.TmplFunctionRegistry.TmplFunction
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.lang.parameterInfo.*
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 
-class TmplParameterInfoHandler : ParameterInfoHandler<PsiElement, TmplFunction> {
+class TmplParameterInfoHandler : ParameterInfoHandler<PsiElement, TmplParameterInfoHandler.FunctionWithContext> {
 
     companion object {
         private val LOG = Logger.getInstance(TmplParameterInfoHandler::class.java)
@@ -53,9 +52,19 @@ class TmplParameterInfoHandler : ParameterInfoHandler<PsiElement, TmplFunction> 
 
         if (function == null) return null
 
-        context.itemsToShow = arrayOf(function)
+        // Check if this is a filter call - if so, we'll skip the first parameter
+        val isFilterCall = isFilterCall(text, offset)
+        context.itemsToShow = arrayOf(FunctionWithContext(function, isFilterCall))
         return element
     }
+
+    /**
+     * Wrapper to pass filter context to updateUI
+     */
+    data class FunctionWithContext(
+        val function: TmplFunctionRegistry.TmplFunction,
+        val isFilterCall: Boolean
+    )
 
     override fun findElementForUpdatingParameterInfo(context: UpdateParameterInfoContext): PsiElement? {
         val file = context.file
@@ -77,16 +86,24 @@ class TmplParameterInfoHandler : ParameterInfoHandler<PsiElement, TmplFunction> 
         context.setCurrentParameter(currentParamIndex)
     }
 
-    override fun updateUI(function: TmplFunction?, context: ParameterInfoUIContext) {
-        if (function == null) {
+    override fun updateUI(functionWithContext: FunctionWithContext?, context: ParameterInfoUIContext) {
+        if (functionWithContext == null) {
             context.isUIComponentEnabled = false
             return
         }
 
-        val params = function.params
+        val function = functionWithContext.function
+        // For filters, skip the first parameter (it's the piped value)
+        val params = if (functionWithContext.isFilterCall && function.params.isNotEmpty()) {
+            function.params.drop(1)
+        } else {
+            function.params
+        }
+
         if (params.isEmpty()) {
+            val suffix = if (functionWithContext.isFilterCall) " (value passed via pipe)" else " - no parameters"
             context.setupUIComponentPresentation(
-                "${function.name}() - no parameters",
+                "${function.name}()$suffix",
                 -1, 0, false, false, false,
                 context.defaultParameterColor
             )
@@ -131,6 +148,7 @@ class TmplParameterInfoHandler : ParameterInfoHandler<PsiElement, TmplFunction> 
     /**
      * Find function name by analyzing text before the cursor.
      * Looks for pattern: identifier( ... cursor
+     * Also handles filter pattern: value | filter( ... cursor
      */
     private fun findFunctionNameFromText(text: String, offset: Int): String? {
         if (offset > text.length) return null
@@ -145,7 +163,7 @@ class TmplParameterInfoHandler : ParameterInfoHandler<PsiElement, TmplFunction> 
                 ')' -> parenDepth++
                 '(' -> {
                     if (parenDepth == 0) {
-                        // Found the opening paren, now find the function name
+                        // Found the opening paren, now find the function/filter name
                         return extractFunctionName(text, i)
                     }
                     parenDepth--
@@ -221,6 +239,52 @@ class TmplParameterInfoHandler : ParameterInfoHandler<PsiElement, TmplFunction> 
             i--
         }
         return commaCount
+    }
+
+    /**
+     * Check if we're inside a filter call (function call that follows a pipe).
+     */
+    private fun isFilterCall(text: String, offset: Int): Boolean {
+        // Find the opening paren first
+        var parenDepth = 0
+        var i = offset - 1
+
+        while (i >= 0) {
+            when (text[i]) {
+                ')' -> parenDepth++
+                '(' -> {
+                    if (parenDepth == 0) {
+                        // Found opening paren, now check if there's a pipe before the function name
+                        return hasPipeBeforeFunction(text, i)
+                    }
+                    parenDepth--
+                }
+                '{' -> {
+                    if (i > 0 && (text[i - 1] == '{' || text[i - 1] == '%')) {
+                        return false
+                    }
+                }
+            }
+            i--
+        }
+        return false
+    }
+
+    /**
+     * Check if there's a pipe before the function name at the given paren position.
+     */
+    private fun hasPipeBeforeFunction(text: String, parenIndex: Int): Boolean {
+        var i = parenIndex - 1
+
+        // Skip function name
+        while (i >= 0 && text[i].isWhitespace()) i--
+        while (i >= 0 && (text[i].isLetterOrDigit() || text[i] == '_')) i--
+
+        // Skip whitespace
+        while (i >= 0 && text[i].isWhitespace()) i--
+
+        // Check for pipe
+        return i >= 0 && text[i] == '|'
     }
 
     @Deprecated("Deprecated in Java")
