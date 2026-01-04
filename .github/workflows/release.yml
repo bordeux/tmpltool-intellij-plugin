@@ -78,3 +78,11 @@ jobs:
           gh release upload ${{ needs.semantic-release.outputs.new_release_git_tag }} \
             build/distributions/*.zip \
             --clobber
+
+      # Uncomment to enable JetBrains Marketplace publishing
+      # Requires JETBRAINS_TOKEN secret (get from https://plugins.jetbrains.com/author/me/tokens)
+      # - name: Publish to JetBrains Marketplace
+      #   run: ./gradlew publishPlugin
+      #   env:
+      #     JETBRAINS_TOKEN: ${{ secrets.JETBRAINS_TOKEN }}
+      #     VERSION: ${{ needs.semantic-release.outputs.new_release_version }}
