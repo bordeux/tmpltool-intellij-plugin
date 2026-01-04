@@ -1,3 +1,9 @@
+## [1.0.1](https://github.com/bordeux/tmpltool-intellij-plugin/compare/v1.0.0...v1.0.1) (2026-01-04)
+
+### Bug Fixes
+
+* create GitHub release in build job instead of semantic-release ([5a02452](https://github.com/bordeux/tmpltool-intellij-plugin/commit/5a024522d3d104b91433922c804d35b012448369))
+
 ## 1.0.0 (2026-01-04)
 
 ### Features
