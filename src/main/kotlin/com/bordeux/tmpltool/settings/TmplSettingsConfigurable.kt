@@ -1,6 +1,6 @@
 package com.bordeux.tmpltool.settings
 
-import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
+import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.ui.dsl.builder.*
@@ -27,7 +27,7 @@ class TmplSettingsConfigurable : Configurable {
             group("Tmpltool Binary") {
                 row("Path:") {
                     pathField = textFieldWithBrowseButton(
-                        FileChooserDescriptorFactory.createSingleFileDescriptor()
+                        FileChooserDescriptor(true, false, false, false, false, false)
                             .withTitle("Select tmpltool Binary")
                     ).columns(COLUMNS_LARGE)
                         .comment("Leave empty to auto-detect from PATH")

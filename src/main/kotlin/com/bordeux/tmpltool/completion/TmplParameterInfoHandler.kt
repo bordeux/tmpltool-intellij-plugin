@@ -1,7 +1,6 @@
 package com.bordeux.tmpltool.completion
 
 import com.bordeux.tmpltool.TmplLanguage
-import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.lang.parameterInfo.*
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiElement
@@ -287,8 +286,4 @@ class TmplParameterInfoHandler : ParameterInfoHandler<PsiElement, TmplParameterI
         return i >= 0 && text[i] == '|'
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun getParametersForLookup(item: LookupElement, context: ParameterInfoContext): Array<Any>? {
-        return null
-    }
 }

@@ -24,3 +24,4 @@ services:
       - "{{ service.port }}:{{ service.port }}"
 {% endfor %}
 
+{{ "test" | get_minute() }}
