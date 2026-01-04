@@ -1,3 +1,9 @@
+## [1.0.2](https://github.com/bordeux/tmpltool-intellij-plugin/compare/v1.0.1...v1.0.2) (2026-01-04)
+
+### Bug Fixes
+
+* use semantic-release-action for proper output capture ([1370594](https://github.com/bordeux/tmpltool-intellij-plugin/commit/137059431dee61fd70e9a515611dad373539842f))
+
 ## [1.0.1](https://github.com/bordeux/tmpltool-intellij-plugin/compare/v1.0.0...v1.0.1) (2026-01-04)
 
 ### Bug Fixes
