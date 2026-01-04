@@ -1,3 +1,5 @@
+import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
+
 plugins {
     id("java")
     id("org.jetbrains.kotlin.jvm") version "2.1.0"
@@ -57,6 +59,12 @@ intellijPlatform {
 
     publishing {
         token = providers.environmentVariable("JETBRAINS_TOKEN")
+    }
+
+    pluginVerification {
+        ides {
+            ide(IntelliJPlatformType.IntellijIdeaCommunity, "2025.1")
+        }
     }
 }
 
