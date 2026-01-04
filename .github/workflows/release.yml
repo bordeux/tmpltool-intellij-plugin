@@ -71,13 +71,26 @@ jobs:
         env:
           VERSION: ${{ needs.semantic-release.outputs.new_release_version }}
 
-      - name: Upload to GitHub Release
+      - name: Extract release notes from CHANGELOG
+        id: changelog
+        run: |
+          # Extract notes for this version from CHANGELOG.md
+          VERSION="${{ needs.semantic-release.outputs.new_release_version }}"
+          # Get content between this version header and the next version header
+          NOTES=$(awk "/^## \[?${VERSION}\]?/{found=1; next} /^## \[?[0-9]+\./{if(found) exit} found{print}" CHANGELOG.md)
+          # Save to file for gh release
+          echo "$NOTES" > release-notes.md
+          echo "Release notes:"
+          cat release-notes.md
+
+      - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload ${{ needs.semantic-release.outputs.new_release_git_tag }} \
+          gh release create ${{ needs.semantic-release.outputs.new_release_git_tag }} \
             build/distributions/*.zip \
-            --clobber
+            --title "v${{ needs.semantic-release.outputs.new_release_version }}" \
+            --notes-file release-notes.md
 
       # Uncomment to enable JetBrains Marketplace publishing
       # Requires JETBRAINS_TOKEN secret (get from https://plugins.jetbrains.com/author/me/tokens)
