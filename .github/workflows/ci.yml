@@ -29,10 +29,3 @@ jobs:
 
       - name: Verify plugin
         run: ./gradlew verifyPlugin
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: plugin-build
-          path: build/distributions/*.zip
-          retention-days: 7

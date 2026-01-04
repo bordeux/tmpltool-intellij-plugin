@@ -3,12 +3,13 @@ version: "3.8"
 
 services:
   web:
-    image: nginx:{{ get_env(name="NGINX_VERSION", default="latest") }}
+    image: {{ get_env(name="IMAGE", default="nginx:latest") }}
     ports:
       - "{{ get_env(name="PORT", default="80") }}:80"
     environment:
       - API_KEY={{ hash_sha256(value="test") }}
       - DEBUG={{ get_env(name="DEBUG", default="false") }}
+      - KEY={{ get
 
 {% if is_production %}
   database:
@@ -23,5 +24,3 @@ services:
     ports:
       - "{{ service.port }}:{{ service.port }}"
 {% endfor %}
-
-{{ "test" | get_minute() }}
