@@ -31,7 +31,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Install semantic-release
         run: |
@@ -68,7 +68,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -106,7 +106,7 @@ jobs:
   #       uses: actions/setup-java@v4
   #       with:
   #         distribution: 'temurin'
-  #         java-version: '17'
+  #         java-version: '21'
   #
   #     - name: Setup Gradle
   #       uses: gradle/actions/setup-gradle@v4
